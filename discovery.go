@@ -26,11 +26,12 @@ func NewServiceDiscoveryClient() *ServiceDiscoveryClient {
 }
 
 func (s *ServiceDiscoveryClient) RegisterService(serviceName string, serviceInstance ServiceInstance) {
-	deletedItem, isDeleted := s.cache.Set(serviceName, serviceInstance)
-	if isDeleted {
-		// write to database
-		database.GetMongoDBCollection(s.db_connection, "service_discovery", "service_instances").InsertOne(context.Background(), deletedItem)
+	s.cache.Set(serviceName, serviceInstance)
+	cacheItem := cacheItem{
+		key:   serviceName,
+		value: serviceInstance,
 	}
+	database.GetMongoDBCollection(s.db_connection, "service_discovery", "service_instances").InsertOne(context.Background(), cacheItem)
 }
 
 func (s *ServiceDiscoveryClient) GetServiceInstance(serviceName string) (ServiceInstance, error) {

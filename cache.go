@@ -36,14 +36,10 @@ func (c *Cache) Get(key string) interface{} {
 }
 
 // Set adds a value to the cache
-func (c *Cache) Set(key string, value interface{}) (cacheItem, bool) {
-
-	var deletedItem cacheItem = cacheItem{}
-	var isDeleted bool = false
+func (c *Cache) Set(key string, value interface{}) {
 
 	if c.list.Len() >= c.capacity {
-		deletedItem = c.evict()
-		isDeleted = true
+		c.evict()
 	}
 
 	newCacheItem := cacheItem{
@@ -54,16 +50,14 @@ func (c *Cache) Set(key string, value interface{}) (cacheItem, bool) {
 	element := c.list.PushFront(newCacheItem)
 	c.instances.Store(key, element)
 
-	return deletedItem, isDeleted
 }
 
 // evict removes the least recently used element from the cache
-func (c *Cache) evict() cacheItem {
+func (c *Cache) evict() {
 
 	element := c.list.Back()
 
 	c.list.Remove(element)
 	c.instances.Delete(element.Value.(cacheItem).key)
-	return element.Value.(cacheItem)
 
 }
