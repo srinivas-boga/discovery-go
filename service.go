@@ -11,7 +11,11 @@ func GetServiceInstance(serviceDiscoveryClient *ServiceDiscoveryClient) gin.Hand
 	return func(c *gin.Context) {
 
 		serviceName := c.Param("service_name")
-		serviceInstance := serviceDiscoveryClient.GetServiceInstance(serviceName)
+		serviceInstance, err := serviceDiscoveryClient.GetServiceInstance(serviceName)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusOK, serviceInstance)
 	}
 }
